@@ -20,12 +20,93 @@
 	</script>
 </head>
 <body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100">
-	<main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-		<header class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-			<h1 class="text-2xl font-bold tracking-tight">CRM Prospection Téléphonique</h1>
-			<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-				Format d'import : <span class="font-medium">ENTREPRISE;SITE;EMAIL;TELEPHONE</span>
-			</p>
+	<!-- Page de Setup (Premier accès) -->
+	<div id="setupContainer" class="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-500 to-indigo-600 px-4 hidden">
+		<div class="w-full max-w-md rounded-2xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md dark:bg-slate-900/40">
+			<div class="mb-8 text-center">
+				<h1 class="text-3xl font-bold text-white">Configuration Initiale</h1>
+				<p class="mt-2 text-sm text-slate-200">Définissez vos identifiants de connexion</p>
+			</div>
+
+			<form id="setupForm" class="grid gap-4">
+				<div>
+					<label for="setupUsername" class="mb-1 block text-sm font-semibold text-slate-100">
+						Identifiant
+					</label>
+					<input id="setupUsername" type="text" placeholder="Ex: Admin"
+						class="w-full rounded-xl border border-white/30 bg-white/20 px-4 py-2.5 text-white placeholder-slate-300 outline-none transition focus:border-white focus:ring-2 focus:ring-white/30 dark:bg-slate-800/40"
+						required />
+				</div>
+
+				<div>
+					<label for="setupPassword" class="mb-1 block text-sm font-semibold text-slate-100">
+						Mot de passe
+					</label>
+					<input id="setupPassword" type="password" placeholder="Entrez un mot de passe"
+						class="w-full rounded-xl border border-white/30 bg-white/20 px-4 py-2.5 text-white placeholder-slate-300 outline-none transition focus:border-white focus:ring-2 focus:ring-white/30 dark:bg-slate-800/40"
+						required />
+				</div>
+
+				<p id="setupMessage" class="rounded-lg bg-slate-500/20 px-3 py-2 text-sm text-slate-100 hidden"></p>
+
+				<button type="submit"
+					class="mt-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-purple-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-white/50">
+					Sauvegarder & Continuer
+				</button>
+			</form>
+		</div>
+	</div>
+
+	<!-- Page de Login -->
+	<div id="loginContainer" class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 px-4 hidden">
+		<div class="w-full max-w-md rounded-2xl border border-white/20 bg-white/10 p-8 shadow-2xl backdrop-blur-md dark:bg-slate-900/40">
+			<div class="mb-8 text-center">
+				<h1 class="text-3xl font-bold text-white">CallWeb CRM</h1>
+				<p class="mt-2 text-sm text-slate-200">Accédez à votre espace de prospection</p>
+			</div>
+
+			<form id="loginForm" class="grid gap-4">
+				<div>
+					<label for="loginUsername" class="mb-1 block text-sm font-semibold text-slate-100">
+						Identifiant
+					</label>
+					<input id="loginUsername" type="text" placeholder="Votre identifiant"
+						class="w-full rounded-xl border border-white/30 bg-white/20 px-4 py-2.5 text-white placeholder-slate-300 outline-none transition focus:border-white focus:ring-2 focus:ring-white/30 dark:bg-slate-800/40"
+						required />
+				</div>
+
+				<div>
+					<label for="loginPassword" class="mb-1 block text-sm font-semibold text-slate-100">
+						Mot de passe
+					</label>
+					<input id="loginPassword" type="password" placeholder="Votre mot de passe"
+						class="w-full rounded-xl border border-white/30 bg-white/20 px-4 py-2.5 text-white placeholder-slate-300 outline-none transition focus:border-white focus:ring-2 focus:ring-white/30 dark:bg-slate-800/40"
+						required />
+				</div>
+
+				<p id="loginError" class="rounded-lg bg-rose-500/20 px-3 py-2 text-sm text-rose-200 hidden"></p>
+
+				<button type="submit"
+					class="mt-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-indigo-600 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-white/50">
+					Connexion
+				</button>
+			</form>
+		</div>
+	</div>
+
+	<!-- App Principale (cachée au démarrage) -->
+	<main id="appContainer" class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 hidden">
+		<header class="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+			<div>
+				<h1 class="text-2xl font-bold tracking-tight">CRM Prospection Téléphonique</h1>
+				<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+					Format d'import : <span class="font-medium">ENTREPRISE;SITE;EMAIL;TELEPHONE</span>
+				</p>
+			</div>
+			<button id="logoutBtn" type="button"
+				class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+				Déconnexion
+			</button>
 		</header>
 
 		<section class="mb-6 grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -124,6 +205,139 @@
 	</div>
 
 	<script>
+		// ===== AUTHENTIFICATION (SÉCURISÉE AVEC SETUP) =====
+		const AUTH_KEY = 'callweb.auth.v1';
+		const CREDENTIALS_HASH_KEY = 'callweb.credentials.hash.v1';
+
+		const setupContainerEl = document.getElementById('setupContainer');
+		const setupFormEl = document.getElementById('setupForm');
+		const setupUsernameEl = document.getElementById('setupUsername');
+		const setupPasswordEl = document.getElementById('setupPassword');
+		const setupMessageEl = document.getElementById('setupMessage');
+
+		const loginContainerEl = document.getElementById('loginContainer');
+		const appContainerEl = document.getElementById('appContainer');
+		const loginFormEl = document.getElementById('loginForm');
+		const loginUsernameEl = document.getElementById('loginUsername');
+		const loginPasswordEl = document.getElementById('loginPassword');
+		const loginErrorEl = document.getElementById('loginError');
+
+		// Fonction de hash sécurisée utilisant la Web Crypto API
+		async function hashCredentials(username, password) {
+			const credentials = `${username}:${password}`;
+			const encoder = new TextEncoder();
+			const data = encoder.encode(credentials);
+			const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+			const hashArray = Array.from(new Uint8Array(hashBuffer));
+			const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+			return hashHex;
+		}
+
+		async function handleSetup(e) {
+			e.preventDefault();
+			const username = setupUsernameEl.value.trim();
+			const password = setupPasswordEl.value;
+
+			if (!username || !password) {
+				setupMessageEl.textContent = 'Remplissez tous les champs.';
+				setupMessageEl.className = 'rounded-lg bg-rose-500/20 px-3 py-2 text-sm text-rose-200';
+				setupMessageEl.classList.remove('hidden');
+				return;
+			}
+
+			try {
+				const hash = await hashCredentials(username, password);
+				localStorage.setItem(CREDENTIALS_HASH_KEY, hash);
+				setupMessageEl.textContent = 'Configuration reussie! Redirection...';
+				setupMessageEl.className = 'rounded-lg bg-emerald-500/20 px-3 py-2 text-sm text-emerald-200';
+				setupMessageEl.classList.remove('hidden');
+
+				setTimeout(() => {
+					setupUsernameEl.value = '';
+					setupPasswordEl.value = '';
+					checkAuthStatus();
+				}, 800);
+			} catch (error) {
+				console.error('Erreur configuration:', error);
+				setupMessageEl.textContent = 'Erreur lors de la configuration. Reessayez.';
+				setupMessageEl.className = 'rounded-lg bg-rose-500/20 px-3 py-2 text-sm text-rose-200';
+				setupMessageEl.classList.remove('hidden');
+			}
+		}
+
+		function checkAuthStatus() {
+			const credentialsHash = localStorage.getItem(CREDENTIALS_HASH_KEY);
+			const isAuthenticated = localStorage.getItem(AUTH_KEY) === 'true';
+
+			if (!credentialsHash) {
+				showSetup();
+			} else if (isAuthenticated) {
+				showApp();
+			} else {
+				showLogin();
+			}
+		}
+
+		function showSetup() {
+			setupContainerEl.classList.remove('hidden');
+			loginContainerEl.classList.add('hidden');
+			appContainerEl.classList.add('hidden');
+		}
+
+		function showLogin() {
+			setupContainerEl.classList.add('hidden');
+			loginContainerEl.classList.remove('hidden');
+			appContainerEl.classList.add('hidden');
+		}
+
+		function showApp() {
+			setupContainerEl.classList.add('hidden');
+			loginContainerEl.classList.add('hidden');
+			appContainerEl.classList.remove('hidden');
+			initApp();
+		}
+
+		async function handleLogin(e) {
+			e.preventDefault();
+			const username = loginUsernameEl.value.trim();
+			const password = loginPasswordEl.value;
+			const storedHash = localStorage.getItem(CREDENTIALS_HASH_KEY);
+
+			if (!storedHash) {
+				loginErrorEl.textContent = 'Configuration non completee. Actualisez la page.';
+				loginErrorEl.classList.remove('hidden');
+				return;
+			}
+
+			try {
+				const hash = await hashCredentials(username, password);
+				if (hash === storedHash) {
+					localStorage.setItem(AUTH_KEY, 'true');
+					loginErrorEl.classList.add('hidden');
+					loginUsernameEl.value = '';
+					loginPasswordEl.value = '';
+					showApp();
+				} else {
+					loginErrorEl.textContent = 'Identifiant ou mot de passe incorrect.';
+					loginErrorEl.classList.remove('hidden');
+					loginPasswordEl.value = '';
+				}
+			} catch (error) {
+				console.error('Erreur authentification:', error);
+				loginErrorEl.textContent = 'Erreur lors de la verification. Reessayez.';
+				loginErrorEl.classList.remove('hidden');
+			}
+		}
+
+		function handleLogout() {
+			localStorage.removeItem(AUTH_KEY);
+			showLogin();
+		}
+
+		setupFormEl.addEventListener('submit', handleSetup);
+		loginFormEl.addEventListener('submit', handleLogin);
+
+		// ===== APPLICATION PRINCIPALE =====
 		// IMPORTANT (sécurité/config) : créez la table "prospects" avec les colonnes : id, nom, site, email, tel, calls, mails, notes.
 		const SUPABASE_URL = 'https://kexdjgcbjwbweftvmocs.supabase.co';
 		const SUPABASE_ANON_KEY = 'sb_publishable_-L0IYmCxFmFm-EP_umcsmg_Awk5dtmV';
@@ -132,24 +346,61 @@
 		let companies = [];
 		let selectedCompanyId = null;
 
-		const importDataEl = document.getElementById('importData');
-		const importBtnEl = document.getElementById('importBtn');
-		const clearAllBtnEl = document.getElementById('clearAllBtn');
-		const importFeedbackEl = document.getElementById('importFeedback');
-		const tableBodyEl = document.getElementById('companiesTableBody');
-		const globalStatsEl = document.getElementById('globalStats');
+		let importDataEl, importBtnEl, clearAllBtnEl, logoutBtnEl, importFeedbackEl, tableBodyEl, globalStatsEl;
+		let modalEl, closeModalBtnEl, saveCloseBtnEl, modalTitleEl, modalCountersEl;
+		let modalSiteEl, modalEmailEl, modalPhoneEl, calledCheckEl, emailedCheckEl, modalNotesEl;
 
-		const modalEl = document.getElementById('companyModal');
-		const closeModalBtnEl = document.getElementById('closeModalBtn');
-		const saveCloseBtnEl = document.getElementById('saveCloseBtn');
-		const modalTitleEl = document.getElementById('modalTitle');
-		const modalCountersEl = document.getElementById('modalCounters');
-		const modalSiteEl = document.getElementById('modalSite');
-		const modalEmailEl = document.getElementById('modalEmail');
-		const modalPhoneEl = document.getElementById('modalPhone');
-		const calledCheckEl = document.getElementById('calledCheck');
-		const emailedCheckEl = document.getElementById('emailedCheck');
-		const modalNotesEl = document.getElementById('modalNotes');
+		function initApp() {
+			importDataEl = document.getElementById('importData');
+			importBtnEl = document.getElementById('importBtn');
+			clearAllBtnEl = document.getElementById('clearAllBtn');
+			logoutBtnEl = document.getElementById('logoutBtn');
+			importFeedbackEl = document.getElementById('importFeedback');
+			tableBodyEl = document.getElementById('companiesTableBody');
+			globalStatsEl = document.getElementById('globalStats');
+
+			modalEl = document.getElementById('companyModal');
+			closeModalBtnEl = document.getElementById('closeModalBtn');
+			saveCloseBtnEl = document.getElementById('saveCloseBtn');
+			modalTitleEl = document.getElementById('modalTitle');
+			modalCountersEl = document.getElementById('modalCounters');
+			modalSiteEl = document.getElementById('modalSite');
+			modalEmailEl = document.getElementById('modalEmail');
+			modalPhoneEl = document.getElementById('modalPhone');
+			calledCheckEl = document.getElementById('calledCheck');
+			emailedCheckEl = document.getElementById('emailedCheck');
+			modalNotesEl = document.getElementById('modalNotes');
+
+			importBtnEl.addEventListener('click', handleImport);
+			clearAllBtnEl.addEventListener('click', clearAll);
+			closeModalBtnEl.addEventListener('click', closeModal);
+			saveCloseBtnEl.addEventListener('click', saveAndClose);
+			logoutBtnEl.addEventListener('click', handleLogout);
+
+			tableBodyEl.addEventListener('click', (event) => {
+				const target = event.target;
+				if (!(target instanceof HTMLElement)) return;
+				const id = target.dataset.id;
+				if (!id) return;
+
+				if (target.classList.contains('open-modal')) {
+					openModal(id);
+					return;
+				}
+
+				if (target.classList.contains('delete-row')) {
+					deleteProspectById(id);
+				}
+			});
+
+			modalEl.addEventListener('click', (event) => {
+				if (event.target === modalEl) {
+					closeModal();
+				}
+			});
+
+			loadProspects();
+		}
 
 		function sanitizeUrl(url) {
 			const trimmed = String(url || '').trim();
@@ -427,42 +678,8 @@
 			await loadProspects();
 		}
 
-		importBtnEl.addEventListener('click', () => {
-			handleImport();
-		});
-
-		clearAllBtnEl.addEventListener('click', () => {
-			clearAll();
-		});
-
-		closeModalBtnEl.addEventListener('click', closeModal);
-		saveCloseBtnEl.addEventListener('click', () => {
-			saveAndClose();
-		});
-
-		tableBodyEl.addEventListener('click', (event) => {
-			const target = event.target;
-			if (!(target instanceof HTMLElement)) return;
-			const id = target.dataset.id;
-			if (!id) return;
-
-			if (target.classList.contains('open-modal')) {
-				openModal(id);
-				return;
-			}
-
-			if (target.classList.contains('delete-row')) {
-				deleteProspectById(id);
-			}
-		});
-
-		modalEl.addEventListener('click', (event) => {
-			if (event.target === modalEl) {
-				closeModal();
-			}
-		});
-
-		loadProspects();
+		// Vérification du statut d'authentification au chargement
+		checkAuthStatus();
 	</script>
 </body>
 </html>
