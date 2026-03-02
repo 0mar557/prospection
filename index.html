@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="fr" class="h-full">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Prospection CRM - CallWeb</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+	<script>
+		tailwind.config = {
+			darkMode: 'media',
+			theme: {
+				extend: {
+					boxShadow: {
+						glow: '0 0 0 1px rgba(99,102,241,.35), 0 6px 20px rgba(0,0,0,.25)'
+					}
+				}
+			}
+		};
+	</script>
+</head>
+<body class="h-full bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100">
+	<main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+		<header class="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+			<h1 class="text-2xl font-bold tracking-tight">CRM Prospection Téléphonique</h1>
+			<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+				Format d'import : <span class="font-medium">ENTREPRISE;SITE;EMAIL;TELEPHONE</span>
+			</p>
+		</header>
+
+		<section class="mb-6 grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+			<label for="importData" class="text-sm font-semibold">Coller vos lignes d'import</label>
+			<textarea id="importData" rows="7" placeholder="Acme;https://acme.com;contact@acme.com;+33102030405"
+				class="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm outline-none ring-indigo-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"></textarea>
+			<div class="flex flex-wrap items-center gap-3">
+				<button id="importBtn" type="button"
+					class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900">
+					Importer
+				</button>
+				<button id="clearAllBtn" type="button"
+					class="rounded-xl border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50 dark:border-rose-700 dark:text-rose-300 dark:hover:bg-rose-950/40">
+					Tout effacer
+				</button>
+				<p id="importFeedback" class="text-sm"></p>
+			</div>
+		</section>
+
+		<section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+			<div class="mb-4 flex items-center justify-between">
+				<h2 class="text-lg font-semibold">Dashboard entreprises</h2>
+				<span id="globalStats" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300"></span>
+			</div>
+
+			<div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+				<table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+					<thead class="bg-slate-100/80 dark:bg-slate-800/50">
+						<tr>
+							<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Entreprise</th>
+							<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Téléphone</th>
+							<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Compteurs</th>
+							<th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Action</th>
+						</tr>
+					</thead>
+					<tbody id="companiesTableBody" class="divide-y divide-slate-100 dark:divide-slate-900"></tbody>
+				</table>
+			</div>
+		</section>
+	</main>
+
+	<!-- Modale Zoom -->
+	<div id="companyModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/70 p-4">
+		<div class="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-5 shadow-glow dark:border-slate-700 dark:bg-slate-900">
+			<div class="mb-4 flex items-start justify-between gap-4">
+				<div>
+					<h3 id="modalTitle" class="text-xl font-bold"></h3>
+					<p id="modalCounters" class="mt-1 text-sm text-slate-600 dark:text-slate-400"></p>
+				</div>
+				<button id="closeModalBtn" type="button"
+					class="rounded-lg border border-slate-300 px-3 py-1 text-sm font-medium hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800">
+					Fermer
+				</button>
+			</div>
+
+			<dl class="grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950/50">
+				<div class="grid gap-1 sm:grid-cols-[120px_1fr]">
+					<dt class="font-semibold text-slate-600 dark:text-slate-400">Site</dt>
+					<dd><a id="modalSite" class="text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-500 dark:text-indigo-400"></a></dd>
+				</div>
+				<div class="grid gap-1 sm:grid-cols-[120px_1fr]">
+					<dt class="font-semibold text-slate-600 dark:text-slate-400">Email</dt>
+					<dd><a id="modalEmail" class="text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-500 dark:text-indigo-400"></a></dd>
+				</div>
+				<div class="grid gap-1 sm:grid-cols-[120px_1fr]">
+					<dt class="font-semibold text-slate-600 dark:text-slate-400">Téléphone</dt>
+					<dd id="modalPhone"></dd>
+				</div>
+			</dl>
+
+			<div class="mt-4 grid gap-3 sm:grid-cols-2">
+				<label class="flex items-center gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+					<input id="calledCheck" type="checkbox" class="h-4 w-4 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500" />
+					<span class="text-sm font-medium">Appel effectué</span>
+				</label>
+				<label class="flex items-center gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+					<input id="emailedCheck" type="checkbox" class="h-4 w-4 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500" />
+					<span class="text-sm font-medium">Email envoyé</span>
+				</label>
+			</div>
+
+			<div class="mt-4">
+				<label for="modalNotes" class="mb-1 block text-sm font-semibold">Notes / Commentaires</label>
+				<textarea id="modalNotes" rows="5"
+					class="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm outline-none ring-indigo-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
+					placeholder="Saisir un compte-rendu d'appel, objections, prochaine relance..."></textarea>
+			</div>
+
+			<div class="mt-5 flex flex-wrap items-center justify-end gap-3">
+				<button id="saveCloseBtn" type="button"
+					class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900">
+					Enregistrer & Fermer
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// IMPORTANT (sécurité/config) : créez la table "prospects" avec les colonnes : id, nom, site, email, tel, calls, mails, notes.
+		const SUPABASE_URL = 'TON_URL_ICI';
+		const SUPABASE_ANON_KEY = 'TA_CLE_ANON_ICI';
+		const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+		let companies = [];
+		let selectedCompanyId = null;
+
+		const importDataEl = document.getElementById('importData');
+		const importBtnEl = document.getElementById('importBtn');
+		const clearAllBtnEl = document.getElementById('clearAllBtn');
+		const importFeedbackEl = document.getElementById('importFeedback');
+		const tableBodyEl = document.getElementById('companiesTableBody');
+		const globalStatsEl = document.getElementById('globalStats');
+
+		const modalEl = document.getElementById('companyModal');
+		const closeModalBtnEl = document.getElementById('closeModalBtn');
+		const saveCloseBtnEl = document.getElementById('saveCloseBtn');
+		const modalTitleEl = document.getElementById('modalTitle');
+		const modalCountersEl = document.getElementById('modalCounters');
+		const modalSiteEl = document.getElementById('modalSite');
+		const modalEmailEl = document.getElementById('modalEmail');
+		const modalPhoneEl = document.getElementById('modalPhone');
+		const calledCheckEl = document.getElementById('calledCheck');
+		const emailedCheckEl = document.getElementById('emailedCheck');
+		const modalNotesEl = document.getElementById('modalNotes');
+
+		function sanitizeUrl(url) {
+			const trimmed = String(url || '').trim();
+			if (!trimmed) return '#';
+			if (/^https?:\/\//i.test(trimmed)) return trimmed;
+			return `https://${trimmed}`;
+		}
+
+		function escapeHtml(value) {
+			return String(value)
+				.replaceAll('&', '&amp;')
+				.replaceAll('<', '&lt;')
+				.replaceAll('>', '&gt;')
+				.replaceAll('"', '&quot;')
+				.replaceAll("'", '&#039;');
+		}
+
+		function renderStats() {
+			const totals = companies.reduce(
+				(acc, c) => {
+					acc.calls += Number(c.calls || 0);
+					acc.mails += Number(c.mails || 0);
+					return acc;
+				},
+				{ calls: 0, mails: 0 }
+			);
+			globalStatsEl.textContent = `${companies.length} entreprise(s) • Appels ${totals.calls} • Emails ${totals.mails}`;
+		}
+
+		function renderTable() {
+			tableBodyEl.innerHTML = '';
+
+			if (companies.length === 0) {
+				const tr = document.createElement('tr');
+				tr.innerHTML = `
+					<td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+						Aucune entreprise. Importez des données pour démarrer.
+					</td>
+				`;
+				tableBodyEl.appendChild(tr);
+				renderStats();
+				return;
+			}
+
+			companies.forEach((company) => {
+				const isHot = Number(company.calls || 0) > 3;
+				const tr = document.createElement('tr');
+				tr.className = isHot ? 'bg-amber-50/80 dark:bg-amber-900/10' : 'bg-white dark:bg-slate-900';
+
+				tr.innerHTML = `
+					<td class="px-4 py-3 text-sm font-medium">${escapeHtml(company.nom)}</td>
+					<td class="px-4 py-3 text-sm">${escapeHtml(company.tel)}</td>
+					<td class="px-4 py-3 text-sm">
+						<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
+							isHot
+								? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
+								: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+						}">
+							Appels ${Number(company.calls || 0)} / Emails ${Number(company.mails || 0)}
+						</span>
+					</td>
+					<td class="px-4 py-3 text-right text-sm">
+						<div class="flex justify-end gap-2">
+							<button type="button" data-id="${company.id}"
+								class="open-modal rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-indigo-500">
+								Ouvrir
+							</button>
+							<button type="button" data-id="${company.id}"
+								class="delete-row rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-500">
+								Supprimer
+							</button>
+						</div>
+					</td>
+				`;
+				tableBodyEl.appendChild(tr);
+			});
+
+			renderStats();
+		}
+
+		function parseImportLines(text) {
+			const lines = String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+			const validEntries = [];
+			const errors = [];
+
+			lines.forEach((line, index) => {
+				const parts = line.split(';').map((part) => part.trim());
+				if (parts.length !== 4 || parts.some((part) => part.length === 0)) {
+					errors.push({ lineNumber: index + 1, raw: line });
+					return;
+				}
+
+				const [nom, site, email, tel] = parts;
+				validEntries.push({ nom, site, email, tel, calls: 0, mails: 0, notes: '' });
+			});
+
+			return { validEntries, errors, totalLines: lines.length };
+		}
+
+		async function loadProspects() {
+			const { data, error } = await supabaseClient
+				.from('prospects')
+				.select('id, nom, site, email, tel, calls, mails, notes')
+				.order('id', { ascending: true });
+
+			if (error) {
+				console.error('Erreur loadProspects:', error);
+				importFeedbackEl.textContent = `Erreur de chargement Supabase : ${error.message}`;
+				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+				companies = [];
+				renderTable();
+				return;
+			}
+
+			companies = Array.isArray(data) ? data : [];
+			renderTable();
+		}
+
+		function openModal(companyId) {
+			const company = companies.find((c) => String(c.id) === String(companyId));
+			if (!company) return;
+
+			selectedCompanyId = companyId;
+			modalTitleEl.textContent = company.nom;
+			modalCountersEl.textContent = `Appels : ${Number(company.calls || 0)} • Emails : ${Number(company.mails || 0)}`;
+
+			modalSiteEl.href = sanitizeUrl(company.site);
+			modalSiteEl.target = '_blank';
+			modalSiteEl.rel = 'noopener noreferrer';
+			modalSiteEl.textContent = company.site || '-';
+
+			modalEmailEl.href = `mailto:${company.email || ''}`;
+			modalEmailEl.textContent = company.email || '-';
+
+			modalPhoneEl.textContent = company.tel || '-';
+			modalNotesEl.value = company.notes || '';
+
+			calledCheckEl.checked = false;
+			emailedCheckEl.checked = false;
+
+			modalEl.classList.remove('hidden');
+			modalEl.classList.add('flex');
+		}
+
+		function closeModal() {
+			modalEl.classList.add('hidden');
+			modalEl.classList.remove('flex');
+			selectedCompanyId = null;
+			calledCheckEl.checked = false;
+			emailedCheckEl.checked = false;
+		}
+
+		async function saveAndClose() {
+			if (!selectedCompanyId) {
+				closeModal();
+				return;
+			}
+
+			const company = companies.find((c) => String(c.id) === String(selectedCompanyId));
+			if (!company) {
+				closeModal();
+				return;
+			}
+
+			const nextCalls = Number(company.calls || 0) + (calledCheckEl.checked ? 1 : 0);
+			const nextMails = Number(company.mails || 0) + (emailedCheckEl.checked ? 1 : 0);
+			const nextNotes = modalNotesEl.value.trim();
+
+			const payload = {
+				id: company.id,
+				nom: company.nom,
+				site: company.site,
+				email: company.email,
+				tel: company.tel,
+				calls: nextCalls,
+				mails: nextMails,
+				notes: nextNotes
+			};
+
+			const { error } = await supabaseClient.from('prospects').upsert(payload);
+			if (error) {
+				console.error('Erreur upsert:', error);
+				importFeedbackEl.textContent = `Erreur d'enregistrement : ${error.message}`;
+				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+				return;
+			}
+
+			calledCheckEl.checked = false;
+			emailedCheckEl.checked = false;
+			closeModal();
+			await loadProspects();
+		}
+
+		async function handleImport() {
+			const text = importDataEl.value;
+			const { validEntries, errors, totalLines } = parseImportLines(text);
+
+			if (totalLines === 0) {
+				importFeedbackEl.textContent = 'Aucune ligne détectée.';
+				importFeedbackEl.className = 'text-sm text-amber-600 dark:text-amber-400';
+				return;
+			}
+
+			let insertedCount = 0;
+			const dbErrors = [];
+
+			for (const row of validEntries) {
+				const { error } = await supabaseClient.from('prospects').insert(row);
+				if (error) {
+					dbErrors.push(error.message);
+				} else {
+					insertedCount += 1;
+				}
+			}
+
+			if (errors.length > 0 || dbErrors.length > 0) {
+				const formatPreview = errors.slice(0, 2).map((e) => `L${e.lineNumber}: ${e.raw}`).join(' | ');
+				const dbPreview = dbErrors.slice(0, 1).join('');
+				importFeedbackEl.textContent = `Import partiel : ${insertedCount} insérée(s), ${errors.length} erreur(s) format, ${dbErrors.length} erreur(s) DB. ${formatPreview} ${dbPreview}`;
+				importFeedbackEl.className = 'text-sm text-amber-600 dark:text-amber-400';
+			} else {
+				importFeedbackEl.textContent = `Import réussi : ${insertedCount} entreprise(s) ajoutée(s).`;
+				importFeedbackEl.className = 'text-sm text-emerald-600 dark:text-emerald-400';
+			}
+
+			importDataEl.value = '';
+			await loadProspects();
+		}
+
+		async function deleteProspectById(id) {
+			const confirmed = window.confirm('Supprimer cette entreprise ?');
+			if (!confirmed) return;
+
+			const { error } = await supabaseClient.from('prospects').delete().eq('id', id);
+			if (error) {
+				console.error('Erreur suppression:', error);
+				importFeedbackEl.textContent = `Erreur suppression : ${error.message}`;
+				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+				return;
+			}
+
+			importFeedbackEl.textContent = 'Entreprise supprimée.';
+			importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+			await loadProspects();
+		}
+
+		async function clearAll() {
+			const confirmed = window.confirm('Supprimer toutes les entreprises et statistiques en base ?');
+			if (!confirmed) return;
+
+			const { data: ids, error: idsError } = await supabaseClient.from('prospects').select('id');
+			if (idsError) {
+				importFeedbackEl.textContent = `Erreur lecture IDs : ${idsError.message}`;
+				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+				return;
+			}
+
+			if (!ids || ids.length === 0) {
+				importFeedbackEl.textContent = 'Aucune donnée à supprimer.';
+				importFeedbackEl.className = 'text-sm text-amber-600 dark:text-amber-400';
+				await loadProspects();
+				return;
+			}
+
+			const idList = ids.map((row) => row.id);
+			const { error } = await supabaseClient.from('prospects').delete().in('id', idList);
+			if (error) {
+				importFeedbackEl.textContent = `Erreur suppression globale : ${error.message}`;
+				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+				return;
+			}
+
+			importFeedbackEl.textContent = 'Toutes les données ont été supprimées de Supabase.';
+			importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+			await loadProspects();
+		}
+
+		importBtnEl.addEventListener('click', () => {
+			handleImport();
+		});
+
+		clearAllBtnEl.addEventListener('click', () => {
+			clearAll();
+		});
+
+		closeModalBtnEl.addEventListener('click', closeModal);
+		saveCloseBtnEl.addEventListener('click', () => {
+			saveAndClose();
+		});
+
+		tableBodyEl.addEventListener('click', (event) => {
+			const target = event.target;
+			if (!(target instanceof HTMLElement)) return;
+			const id = target.dataset.id;
+			if (!id) return;
+
+			if (target.classList.contains('open-modal')) {
+				openModal(id);
+				return;
+			}
+
+			if (target.classList.contains('delete-row')) {
+				deleteProspectById(id);
+			}
+		});
+
+		modalEl.addEventListener('click', (event) => {
+			if (event.target === modalEl) {
+				closeModal();
+			}
+		});
+
+		loadProspects();
+	</script>
+</body>
+</html>
