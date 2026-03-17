@@ -99,8 +99,8 @@
 		<header class="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 			<div>
 				<h1 class="text-2xl font-bold tracking-tight">CRM Prospection Téléphonique</h1>
-				<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
-					Format d'import : <span class="font-medium">ENTREPRISE;SITE;EMAIL;TELEPHONE</span>
+				<p id="sectionLead" class="mt-1 text-sm text-slate-600 dark:text-slate-400">
+					Section : <span class="font-medium">Site web</span> • Format d'import : <span class="font-medium">ENTREPRISE;SITE;POSTE</span>
 				</p>
 			</div>
 			<button id="logoutBtn" type="button"
@@ -109,9 +109,26 @@
 			</button>
 		</header>
 
+		<section class="mb-6 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+			<div class="flex flex-wrap gap-2">
+				<button type="button" data-section="siteweb"
+					class="section-tab rounded-xl border border-slate-300 bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+					Site web
+				</button>
+				<button type="button" data-section="qualibat"
+					class="section-tab rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
+					Qualibat
+				</button>
+				<button type="button" data-section="candidature"
+					class="section-tab rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
+					Candidature
+				</button>
+			</div>
+		</section>
+
 		<section class="mb-6 grid gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-			<label for="importData" class="text-sm font-semibold">Coller vos lignes d'import</label>
-			<textarea id="importData" rows="7" placeholder="Acme;https://acme.com;contact@acme.com;+33102030405"
+			<label for="importData" id="importLabel" class="text-sm font-semibold">Coller vos lignes d'import</label>
+			<textarea id="importData" rows="7" placeholder="Acme;https://acme.com;Chef de projet"
 				class="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm outline-none ring-indigo-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"></textarea>
 			<div class="flex flex-wrap items-center gap-3">
 				<button id="importBtn" type="button"
@@ -128,7 +145,7 @@
 
 		<section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
 			<div class="mb-4 flex items-center justify-between">
-				<h2 class="text-lg font-semibold">Dashboard entreprises</h2>
+				<h2 id="dashboardTitle" class="text-lg font-semibold">Dashboard entreprises</h2>
 				<span id="globalStats" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300"></span>
 			</div>
 
@@ -136,8 +153,9 @@
 				<table class="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
 					<thead class="bg-slate-100/80 dark:bg-slate-800/50">
 						<tr>
-							<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Entreprise</th>
-							<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Téléphone</th>
+							<th id="firstColHeader" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Entreprise</th>
+					<th id="secondColHeader" class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Contact</th>
+							<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Date d'ajout</th>
 							<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Compteurs</th>
 							<th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">Action</th>
 						</tr>
@@ -167,13 +185,21 @@
 					<dt class="font-semibold text-slate-600 dark:text-slate-400">Site</dt>
 					<dd><a id="modalSite" class="text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-500 dark:text-indigo-400"></a></dd>
 				</div>
-				<div class="grid gap-1 sm:grid-cols-[120px_1fr]">
+				<div id="modalEmailRow" class="grid gap-1 sm:grid-cols-[120px_1fr]">
 					<dt class="font-semibold text-slate-600 dark:text-slate-400">Email</dt>
 					<dd><a id="modalEmail" class="text-indigo-600 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-500 dark:text-indigo-400"></a></dd>
 				</div>
+				<div id="modalTelRow" class="grid gap-1 sm:grid-cols-[120px_1fr]">
+					<dt class="font-semibold text-slate-600 dark:text-slate-400">Tél</dt>
+					<dd id="modalTel"></dd>
+				</div>
+				<div id="modalPosteRow" class="grid gap-1 sm:grid-cols-[120px_1fr]">
+					<dt class="font-semibold text-slate-600 dark:text-slate-400">Poste</dt>
+					<dd id="modalPoste"></dd>
+				</div>
 				<div class="grid gap-1 sm:grid-cols-[120px_1fr]">
-					<dt class="font-semibold text-slate-600 dark:text-slate-400">Téléphone</dt>
-					<dd id="modalPhone"></dd>
+					<dt class="font-semibold text-slate-600 dark:text-slate-400">Date d'ajout</dt>
+					<dd id="modalAddedAt"></dd>
 				</div>
 			</dl>
 
@@ -186,6 +212,10 @@
 					<input id="emailedCheck" type="checkbox" class="h-4 w-4 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500" />
 					<span class="text-sm font-medium">Email envoyé</span>
 				</label>
+				<label class="flex items-center gap-2 rounded-lg border border-slate-200 p-3 dark:border-slate-700">
+					<input id="candidatureCheck" type="checkbox" class="h-4 w-4 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500" />
+					<span class="text-sm font-medium">Candidature envoyée</span>
+				</label>
 			</div>
 
 			<div class="mt-4">
@@ -193,6 +223,11 @@
 				<textarea id="modalNotes" rows="5"
 					class="w-full rounded-xl border border-slate-300 bg-white p-3 text-sm outline-none ring-indigo-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-950"
 					placeholder="Saisir un compte-rendu d'appel, objections, prochaine relance..."></textarea>
+			</div>
+
+			<div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50">
+				<p class="mb-2 text-sm font-semibold">Historique</p>
+				<ul id="modalHistoryList" class="max-h-44 space-y-2 overflow-auto text-sm"></ul>
 			</div>
 
 			<div class="mt-5 flex flex-wrap items-center justify-end gap-3">
@@ -342,15 +377,63 @@
 		const SUPABASE_URL = 'https://kexdjgcbjwbweftvmocs.supabase.co';
 		const SUPABASE_ANON_KEY = 'sb_publishable_-L0IYmCxFmFm-EP_umcsmg_Awk5dtmV';
 		const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+		const ACTIVE_SECTION_KEY = 'callweb.active.section.v1';
+		const ADDED_AT_MAP_KEY = 'callweb.addedat.map.v1';
+		const ACTIVITY_MAP_KEY = 'callweb.activity.map.v1';
+		const LOCAL_SECTION_KEYS = {
+			qualibat: 'callweb.qualibat.data.v1',
+			candidature: 'callweb.candidature.data.v1'
+		};
+		const SECTION_META = {
+			siteweb: {
+				label: 'Site web',
+				dashboardTitle: 'Dashboard entreprises - Site web',
+				firstColumn: 'Entreprise',
+				itemLabel: 'entreprise(s)',
+				importHint: 'ENTREPRISE;SITE;EMAIL;TELEPHONE',
+				importPlaceholder: 'Acme;https://acme.com;contact@acme.com;+33102030405',
+				contactColLabel: 'Contact'
+			},
+			qualibat: {
+				label: 'Qualibat',
+				dashboardTitle: 'Dashboard entreprises - Qualibat',
+				firstColumn: 'Entreprise',
+				itemLabel: 'entreprise(s)',
+				importHint: 'ENTREPRISE;SITE;EMAIL;TELEPHONE',
+				importPlaceholder: 'Acme;https://acme.com;contact@acme.com;+33102030405',
+				contactColLabel: 'Contact'
+			},
+			candidature: {
+				label: 'Candidature',
+				dashboardTitle: 'Dashboard candidatures',
+				firstColumn: 'Candidature',
+				itemLabel: 'candidature(s)',
+				importHint: 'ENTREPRISE;SITE;POSTE',
+				importPlaceholder: 'Acme;https://acme.com;Chef de projet',
+				contactColLabel: 'Poste'
+			}
+		};
 
 		let companies = [];
 		let selectedCompanyId = null;
+		let currentSection = 'siteweb';
+		let appInitialized = false;
+		let addedAtMap = {};
+		let activityMap = {};
 
 		let importDataEl, importBtnEl, clearAllBtnEl, logoutBtnEl, importFeedbackEl, tableBodyEl, globalStatsEl;
 		let modalEl, closeModalBtnEl, saveCloseBtnEl, modalTitleEl, modalCountersEl;
-		let modalSiteEl, modalEmailEl, modalPhoneEl, calledCheckEl, emailedCheckEl, modalNotesEl;
+		let modalSiteEl, modalEmailEl, modalEmailRowEl, modalTelEl, modalTelRowEl, modalPosteEl, modalPosteRowEl, modalAddedAtEl;
+		let calledCheckEl, emailedCheckEl, candidatureCheckEl, modalNotesEl, modalHistoryListEl;
+		let sectionLeadEl, dashboardTitleEl, firstColHeaderEl, secondColHeaderEl, importLabelEl, sectionTabs;
 
-		function initApp() {
+		async function initApp() {
+			if (appInitialized) {
+				updateSectionUI();
+				await loadCurrentSection();
+				return;
+			}
+
 			importDataEl = document.getElementById('importData');
 			importBtnEl = document.getElementById('importBtn');
 			clearAllBtnEl = document.getElementById('clearAllBtn');
@@ -358,6 +441,12 @@
 			importFeedbackEl = document.getElementById('importFeedback');
 			tableBodyEl = document.getElementById('companiesTableBody');
 			globalStatsEl = document.getElementById('globalStats');
+			sectionLeadEl = document.getElementById('sectionLead');
+			dashboardTitleEl = document.getElementById('dashboardTitle');
+			firstColHeaderEl = document.getElementById('firstColHeader');
+			secondColHeaderEl = document.getElementById('secondColHeader');
+			importLabelEl = document.getElementById('importLabel');
+			sectionTabs = document.querySelectorAll('.section-tab');
 
 			modalEl = document.getElementById('companyModal');
 			closeModalBtnEl = document.getElementById('closeModalBtn');
@@ -366,16 +455,41 @@
 			modalCountersEl = document.getElementById('modalCounters');
 			modalSiteEl = document.getElementById('modalSite');
 			modalEmailEl = document.getElementById('modalEmail');
-			modalPhoneEl = document.getElementById('modalPhone');
+			modalEmailRowEl = document.getElementById('modalEmailRow');
+			modalTelEl = document.getElementById('modalTel');
+			modalTelRowEl = document.getElementById('modalTelRow');
+			modalPosteEl = document.getElementById('modalPoste');
+			modalPosteRowEl = document.getElementById('modalPosteRow');
+			modalAddedAtEl = document.getElementById('modalAddedAt');
 			calledCheckEl = document.getElementById('calledCheck');
 			emailedCheckEl = document.getElementById('emailedCheck');
+			candidatureCheckEl = document.getElementById('candidatureCheck');
 			modalNotesEl = document.getElementById('modalNotes');
+			modalHistoryListEl = document.getElementById('modalHistoryList');
+
+			try {
+				addedAtMap = JSON.parse(localStorage.getItem(ADDED_AT_MAP_KEY) || '{}');
+			} catch {
+				addedAtMap = {};
+			}
+			try {
+				activityMap = JSON.parse(localStorage.getItem(ACTIVITY_MAP_KEY) || '{}');
+			} catch {
+				activityMap = {};
+			}
 
 			importBtnEl.addEventListener('click', handleImport);
 			clearAllBtnEl.addEventListener('click', clearAll);
 			closeModalBtnEl.addEventListener('click', closeModal);
 			saveCloseBtnEl.addEventListener('click', saveAndClose);
 			logoutBtnEl.addEventListener('click', handleLogout);
+			sectionTabs.forEach((tab) => {
+				tab.addEventListener('click', () => {
+					const section = tab.dataset.section;
+					if (!section || !SECTION_META[section]) return;
+					switchSection(section);
+				});
+			});
 
 			tableBodyEl.addEventListener('click', (event) => {
 				const target = event.target;
@@ -399,7 +513,115 @@
 				}
 			});
 
-			loadProspects();
+			const persistedSection = localStorage.getItem(ACTIVE_SECTION_KEY);
+			if (persistedSection && SECTION_META[persistedSection]) {
+				currentSection = persistedSection;
+			}
+
+			appInitialized = true;
+			updateSectionUI();
+			await loadCurrentSection();
+		}
+
+		function switchSection(section) {
+			if (section === currentSection) return;
+			currentSection = section;
+			localStorage.setItem(ACTIVE_SECTION_KEY, section);
+			importFeedbackEl.textContent = '';
+			updateSectionUI();
+			loadCurrentSection();
+		}
+
+		function updateSectionUI() {
+			const meta = SECTION_META[currentSection];
+			if (!meta) return;
+
+			sectionLeadEl.innerHTML = `Section : <span class="font-medium">${meta.label}</span> • Format d'import : <span class="font-medium">${meta.importHint}</span>`;
+			dashboardTitleEl.textContent = meta.dashboardTitle;
+			firstColHeaderEl.textContent = meta.firstColumn;
+			secondColHeaderEl.textContent = meta.contactColLabel;
+			importLabelEl.textContent = `Coller vos lignes d'import (${meta.label})`;
+			importDataEl.placeholder = meta.importPlaceholder;
+
+			sectionTabs.forEach((tab) => {
+				const active = tab.dataset.section === currentSection;
+				tab.className = active
+					? 'section-tab rounded-xl border border-indigo-500 bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500'
+					: 'section-tab rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800';
+			});
+		}
+
+		function getLocalDataForSection(section) {
+			const key = LOCAL_SECTION_KEYS[section];
+			if (!key) return [];
+			try {
+				const raw = localStorage.getItem(key);
+				if (!raw) return [];
+				const parsed = JSON.parse(raw);
+				return Array.isArray(parsed) ? parsed : [];
+			} catch {
+				return [];
+			}
+		}
+
+		function saveLocalDataForCurrentSection() {
+			const key = LOCAL_SECTION_KEYS[currentSection];
+			if (!key) return;
+			localStorage.setItem(key, JSON.stringify(companies));
+		}
+
+		function saveAddedAtMap() {
+			localStorage.setItem(ADDED_AT_MAP_KEY, JSON.stringify(addedAtMap));
+		}
+
+		function saveActivityMap() {
+			localStorage.setItem(ACTIVITY_MAP_KEY, JSON.stringify(activityMap));
+		}
+
+		function getActivityKey(id) {
+			return `${currentSection}::${id}`;
+		}
+
+		function getActivityData(id) {
+			const key = getActivityKey(id);
+			const base = activityMap[key] || {};
+			return {
+				candidatures: Number(base.candidatures || 0),
+				history: Array.isArray(base.history) ? base.history : []
+			};
+		}
+
+		function setActivityData(id, nextData) {
+			const key = getActivityKey(id);
+			activityMap[key] = nextData;
+			saveActivityMap();
+		}
+
+		function clearCurrentSectionActivityData() {
+			const prefix = `${currentSection}::`;
+			Object.keys(activityMap).forEach((key) => {
+				if (key.startsWith(prefix)) {
+					delete activityMap[key];
+				}
+			});
+			saveActivityMap();
+		}
+
+		function formatAddedAt(dateValue) {
+			if (!dateValue) return '-';
+			const parsed = new Date(dateValue);
+			if (Number.isNaN(parsed.getTime())) return '-';
+			return parsed.toLocaleString('fr-FR');
+		}
+
+		async function loadCurrentSection() {
+			if (currentSection === 'siteweb') {
+				await loadSitewebProspects();
+				return;
+			}
+
+			companies = getLocalDataForSection(currentSection);
+			renderTable();
 		}
 
 		function sanitizeUrl(url) {
@@ -419,25 +641,30 @@
 		}
 
 		function renderStats() {
+			const meta = SECTION_META[currentSection];
 			const totals = companies.reduce(
 				(acc, c) => {
+					const activity = getActivityData(c.id);
 					acc.calls += Number(c.calls || 0);
 					acc.mails += Number(c.mails || 0);
+					acc.candidatures += Number(activity.candidatures || 0);
 					return acc;
 				},
-				{ calls: 0, mails: 0 }
+				{ calls: 0, mails: 0, candidatures: 0 }
 			);
-			globalStatsEl.textContent = `${companies.length} entreprise(s) • Appels ${totals.calls} • Emails ${totals.mails}`;
+			const candidaturesPart = currentSection === 'candidature' ? ` • Candidatures ${totals.candidatures}` : '';
+			globalStatsEl.textContent = `${companies.length} ${meta.itemLabel} • Appels ${totals.calls} • Emails ${totals.mails}${candidaturesPart}`;
 		}
 
 		function renderTable() {
 			tableBodyEl.innerHTML = '';
 
 			if (companies.length === 0) {
+				const meta = SECTION_META[currentSection];
 				const tr = document.createElement('tr');
 				tr.innerHTML = `
-					<td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
-						Aucune entreprise. Importez des données pour démarrer.
+					<td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+						Aucune donnée pour ${meta.label}. Importez des lignes pour démarrer.
 					</td>
 				`;
 				tableBodyEl.appendChild(tr);
@@ -447,20 +674,32 @@
 
 			companies.forEach((company) => {
 				const isHot = Number(company.calls || 0) > 3;
+				const addedAt = company.addedAt || addedAtMap[String(company.id)] || '';
+				const activity = getActivityData(company.id);
+				const lastEntry = activity.history.length > 0
+					? activity.history.reduce((latest, e) => new Date(e.date || 0) > new Date(latest.date || 0) ? e : latest, activity.history[0])
+					: null;
+				const lastActivityLabel = lastEntry ? formatAddedAt(lastEntry.date) : null;
+				const isFourField = currentSection !== 'candidature';
+				const contactCell = isFourField
+					? [company.email, company.tel].filter(Boolean).map(escapeHtml).join(' / ') || '-'
+					: escapeHtml(company.poste || company.tel || '');
 				const tr = document.createElement('tr');
 				tr.className = isHot ? 'bg-amber-50/80 dark:bg-amber-900/10' : 'bg-white dark:bg-slate-900';
 
 				tr.innerHTML = `
 					<td class="px-4 py-3 text-sm font-medium">${escapeHtml(company.nom)}</td>
-					<td class="px-4 py-3 text-sm">${escapeHtml(company.tel)}</td>
+					<td class="px-4 py-3 text-sm">${contactCell}</td>
+					<td class="px-4 py-3 text-sm">${escapeHtml(formatAddedAt(addedAt))}</td>
 					<td class="px-4 py-3 text-sm">
 						<span class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${
 							isHot
 								? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
 								: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
 						}">
-							Appels ${Number(company.calls || 0)} / Emails ${Number(company.mails || 0)}
+							Appels ${Number(company.calls || 0)} / Emails ${Number(company.mails || 0)}${currentSection === 'candidature' ? ` / Candidatures ${Number(activity.candidatures || 0)}` : ''}
 						</span>
+						${lastActivityLabel ? `<p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Dernière activité : ${escapeHtml(lastActivityLabel)}</p>` : ''}
 					</td>
 					<td class="px-4 py-3 text-right text-sm">
 						<div class="flex justify-end gap-2">
@@ -481,33 +720,40 @@
 			renderStats();
 		}
 
-		function parseImportLines(text) {
+		function parseImportLines(text, section) {
+			const isFourField = section !== 'candidature';
+			const expectedFields = isFourField ? 4 : 3;
 			const lines = String(text || '').split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
 			const validEntries = [];
 			const errors = [];
 
 			lines.forEach((line, index) => {
 				const parts = line.split(';').map((part) => part.trim());
-				if (parts.length !== 4 || parts.some((part) => part.length === 0)) {
+				if (parts.length !== expectedFields || parts.some((part) => part.length === 0)) {
 					errors.push({ lineNumber: index + 1, raw: line });
 					return;
 				}
 
-				const [nom, site, email, tel] = parts;
-				validEntries.push({ nom, site, email, tel, calls: 0, mails: 0, notes: '' });
+				if (isFourField) {
+					const [nom, site, email, tel] = parts;
+					validEntries.push({ nom, site, email, tel, calls: 0, mails: 0, notes: '', addedAt: new Date().toISOString() });
+				} else {
+					const [nom, site, poste] = parts;
+					validEntries.push({ nom, site, poste, calls: 0, mails: 0, notes: '', addedAt: new Date().toISOString() });
+				}
 			});
 
 			return { validEntries, errors, totalLines: lines.length };
 		}
 
-		async function loadProspects() {
+		async function loadSitewebProspects() {
 			const { data, error } = await supabaseClient
 				.from('prospects')
 				.select('id, nom, site, email, tel, calls, mails, notes')
 				.order('id', { ascending: true });
 
 			if (error) {
-				console.error('Erreur loadProspects:', error);
+				console.error('Erreur loadSitewebProspects:', error);
 				importFeedbackEl.textContent = `Erreur de chargement Supabase : ${error.message}`;
 				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
 				companies = [];
@@ -515,31 +761,48 @@
 				return;
 			}
 
-			companies = Array.isArray(data) ? data : [];
+			companies = Array.isArray(data)
+				? data.map((row) => ({
+					...row,
+					poste: row.poste || row.tel || '',
+					addedAt: row.addedAt || addedAtMap[String(row.id)] || ''
+				}))
+				: [];
 			renderTable();
 		}
 
 		function openModal(companyId) {
 			const company = companies.find((c) => String(c.id) === String(companyId));
 			if (!company) return;
+			const activity = getActivityData(company.id);
 
 			selectedCompanyId = companyId;
 			modalTitleEl.textContent = company.nom;
-			modalCountersEl.textContent = `Appels : ${Number(company.calls || 0)} • Emails : ${Number(company.mails || 0)}`;
+			modalCountersEl.textContent = `Appels : ${Number(company.calls || 0)} • Emails : ${Number(company.mails || 0)}${currentSection === 'candidature' ? ` • Candidatures : ${Number(activity.candidatures || 0)}` : ''}`;
 
 			modalSiteEl.href = sanitizeUrl(company.site);
 			modalSiteEl.target = '_blank';
 			modalSiteEl.rel = 'noopener noreferrer';
 			modalSiteEl.textContent = company.site || '-';
 
-			modalEmailEl.href = `mailto:${company.email || ''}`;
-			modalEmailEl.textContent = company.email || '-';
-
-			modalPhoneEl.textContent = company.tel || '-';
+			const isFourField = currentSection !== 'candidature';
+			modalEmailRowEl.style.display = isFourField ? '' : 'none';
+			modalTelRowEl.style.display = isFourField ? '' : 'none';
+			modalPosteRowEl.style.display = isFourField ? 'none' : '';
+			if (isFourField) {
+				modalEmailEl.href = company.email ? `mailto:${company.email}` : '#';
+				modalEmailEl.textContent = company.email || '-';
+				modalTelEl.textContent = company.tel || '-';
+			} else {
+				modalPosteEl.textContent = company.poste || company.tel || '-';
+			}
+			modalAddedAtEl.textContent = formatAddedAt(company.addedAt || addedAtMap[String(company.id)] || '');
 			modalNotesEl.value = company.notes || '';
+			renderModalHistory(activity.history);
 
 			calledCheckEl.checked = false;
 			emailedCheckEl.checked = false;
+			candidatureCheckEl.checked = false;
 
 			modalEl.classList.remove('hidden');
 			modalEl.classList.add('flex');
@@ -551,6 +814,32 @@
 			selectedCompanyId = null;
 			calledCheckEl.checked = false;
 			emailedCheckEl.checked = false;
+			candidatureCheckEl.checked = false;
+		}
+
+		function renderModalHistory(historyItems) {
+			modalHistoryListEl.innerHTML = '';
+			if (!Array.isArray(historyItems) || historyItems.length === 0) {
+				modalHistoryListEl.innerHTML = '<li class="text-slate-500 dark:text-slate-400">Aucun enregistrement pour le moment.</li>';
+				return;
+			}
+
+			const sorted = [...historyItems].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+			sorted.forEach((entry) => {
+				const li = document.createElement('li');
+				li.className = 'rounded-lg border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-900';
+				const activeStatuses = [];
+				if (entry.called) activeStatuses.push('Appel');
+				if (entry.emailed) activeStatuses.push('Email');
+				if (entry.candidature) activeStatuses.push('Candidature');
+				const statusText = activeStatuses.length > 0 ? activeStatuses.join(' • ') : 'Aucun statut coché';
+				li.innerHTML = `
+					<p class="font-medium">${escapeHtml(statusText)}</p>
+					<p class="text-xs text-slate-500 dark:text-slate-400">${escapeHtml(formatAddedAt(entry.date))}</p>
+					<p class="mt-1">${escapeHtml(entry.comment || '-')}</p>
+				`;
+				modalHistoryListEl.appendChild(li);
+			});
 		}
 
 		async function saveAndClose() {
@@ -568,35 +857,58 @@
 			const nextCalls = Number(company.calls || 0) + (calledCheckEl.checked ? 1 : 0);
 			const nextMails = Number(company.mails || 0) + (emailedCheckEl.checked ? 1 : 0);
 			const nextNotes = modalNotesEl.value.trim();
+			const activity = getActivityData(company.id);
+			const nextCandidatures = Number(activity.candidatures || 0) + (candidatureCheckEl.checked ? 1 : 0);
 
 			const payload = {
 				id: company.id,
 				nom: company.nom,
 				site: company.site,
-				email: company.email,
-				tel: company.tel,
+				email: company.email || '',
+				tel: company.tel || '',
 				calls: nextCalls,
 				mails: nextMails,
 				notes: nextNotes
 			};
 
-			const { error } = await supabaseClient.from('prospects').upsert(payload);
-			if (error) {
-				console.error('Erreur upsert:', error);
-				importFeedbackEl.textContent = `Erreur d'enregistrement : ${error.message}`;
-				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
-				return;
+			if (currentSection === 'siteweb') {
+				const { error } = await supabaseClient.from('prospects').upsert(payload);
+				if (error) {
+					console.error('Erreur upsert:', error);
+					importFeedbackEl.textContent = `Erreur d'enregistrement : ${error.message}`;
+					importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+					return;
+				}
+			} else {
+				company.calls = nextCalls;
+				company.mails = nextMails;
+				company.notes = nextNotes;
+				saveLocalDataForCurrentSection();
 			}
+
+			const shouldLog = calledCheckEl.checked || emailedCheckEl.checked || candidatureCheckEl.checked || nextNotes.length > 0;
+			const nextHistory = Array.isArray(activity.history) ? [...activity.history] : [];
+			if (shouldLog) {
+				nextHistory.push({
+					called: calledCheckEl.checked,
+					emailed: emailedCheckEl.checked,
+					candidature: candidatureCheckEl.checked,
+					date: new Date().toISOString(),
+					comment: nextNotes
+				});
+			}
+			setActivityData(company.id, { candidatures: nextCandidatures, history: nextHistory });
 
 			calledCheckEl.checked = false;
 			emailedCheckEl.checked = false;
+			candidatureCheckEl.checked = false;
 			closeModal();
-			await loadProspects();
+			await loadCurrentSection();
 		}
 
 		async function handleImport() {
 			const text = importDataEl.value;
-			const { validEntries, errors, totalLines } = parseImportLines(text);
+			const { validEntries, errors, totalLines } = parseImportLines(text, currentSection);
 
 			if (totalLines === 0) {
 				importFeedbackEl.textContent = 'Aucune ligne détectée.';
@@ -607,12 +919,40 @@
 			let insertedCount = 0;
 			const dbErrors = [];
 
-			for (const row of validEntries) {
-				const { error } = await supabaseClient.from('prospects').insert(row);
-				if (error) {
-					dbErrors.push(error.message);
-				} else {
-					insertedCount += 1;
+			if (currentSection === 'siteweb') {
+				for (const row of validEntries) {
+					const insertPayload = {
+						nom: row.nom,
+						site: row.site,
+						email: row.email || '',
+						tel: row.tel || '',
+						calls: row.calls,
+						mails: row.mails,
+						notes: row.notes
+					};
+					const { data, error } = await supabaseClient.from('prospects').insert(insertPayload).select('id').maybeSingle();
+					if (error) {
+						dbErrors.push(error.message);
+					} else {
+						if (data && data.id) {
+							addedAtMap[String(data.id)] = row.addedAt;
+							saveAddedAtMap();
+						}
+						insertedCount += 1;
+					}
+				}
+			} else {
+				const preparedRows = validEntries.map((row) => ({
+					id: `local_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
+					tel: row.poste,
+					...row
+				}));
+				companies = [...companies, ...preparedRows];
+				saveLocalDataForCurrentSection();
+				insertedCount = preparedRows.length;
+				if (errors.length === 0) {
+					importFeedbackEl.textContent = `Import réussi : ${insertedCount} entrée(s) ajoutée(s) dans ${SECTION_META[currentSection].label}.`;
+					importFeedbackEl.className = 'text-sm text-emerald-600 dark:text-emerald-400';
 				}
 			}
 
@@ -627,55 +967,73 @@
 			}
 
 			importDataEl.value = '';
-			await loadProspects();
+			await loadCurrentSection();
 		}
 
 		async function deleteProspectById(id) {
 			const confirmed = window.confirm('Supprimer cette entreprise ?');
 			if (!confirmed) return;
 
-			const { error } = await supabaseClient.from('prospects').delete().eq('id', id);
-			if (error) {
-				console.error('Erreur suppression:', error);
-				importFeedbackEl.textContent = `Erreur suppression : ${error.message}`;
-				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
-				return;
+			if (currentSection === 'siteweb') {
+				const { error } = await supabaseClient.from('prospects').delete().eq('id', id);
+				if (error) {
+					console.error('Erreur suppression:', error);
+					importFeedbackEl.textContent = `Erreur suppression : ${error.message}`;
+					importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+					return;
+				}
+			} else {
+				companies = companies.filter((entry) => String(entry.id) !== String(id));
+				saveLocalDataForCurrentSection();
 			}
+			delete addedAtMap[String(id)];
+			saveAddedAtMap();
+			delete activityMap[getActivityKey(id)];
+			saveActivityMap();
 
 			importFeedbackEl.textContent = 'Entreprise supprimée.';
 			importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
-			await loadProspects();
+			await loadCurrentSection();
 		}
 
 		async function clearAll() {
 			const confirmed = window.confirm('Supprimer toutes les entreprises et statistiques en base ?');
 			if (!confirmed) return;
 
-			const { data: ids, error: idsError } = await supabaseClient.from('prospects').select('id');
-			if (idsError) {
-				importFeedbackEl.textContent = `Erreur lecture IDs : ${idsError.message}`;
-				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
-				return;
+			if (currentSection === 'siteweb') {
+				const { data: ids, error: idsError } = await supabaseClient.from('prospects').select('id');
+				if (idsError) {
+					importFeedbackEl.textContent = `Erreur lecture IDs : ${idsError.message}`;
+					importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+					return;
+				}
+
+				if (!ids || ids.length === 0) {
+					importFeedbackEl.textContent = 'Aucune donnée à supprimer.';
+					importFeedbackEl.className = 'text-sm text-amber-600 dark:text-amber-400';
+					await loadCurrentSection();
+					return;
+				}
+
+				const idList = ids.map((row) => row.id);
+				const { error } = await supabaseClient.from('prospects').delete().in('id', idList);
+				if (error) {
+					importFeedbackEl.textContent = `Erreur suppression globale : ${error.message}`;
+					importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
+					return;
+				}
+				addedAtMap = {};
+				saveAddedAtMap();
+				clearCurrentSectionActivityData();
+			} else {
+				companies = [];
+				saveLocalDataForCurrentSection();
+				clearCurrentSectionActivityData();
 			}
 
-			if (!ids || ids.length === 0) {
-				importFeedbackEl.textContent = 'Aucune donnée à supprimer.';
-				importFeedbackEl.className = 'text-sm text-amber-600 dark:text-amber-400';
-				await loadProspects();
-				return;
-			}
-
-			const idList = ids.map((row) => row.id);
-			const { error } = await supabaseClient.from('prospects').delete().in('id', idList);
-			if (error) {
-				importFeedbackEl.textContent = `Erreur suppression globale : ${error.message}`;
-				importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
-				return;
-			}
-
-			importFeedbackEl.textContent = 'Toutes les données ont été supprimées de Supabase.';
+			importFeedbackEl.textContent = `Toutes les données ont été supprimées de ${SECTION_META[currentSection].label}.`;
 			importFeedbackEl.className = 'text-sm text-rose-600 dark:text-rose-400';
-			await loadProspects();
+			await loadCurrentSection();
 		}
 
 		// Vérification du statut d'authentification au chargement
